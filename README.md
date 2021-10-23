@@ -45,10 +45,13 @@ En este caso se usara una una base de datos de Aurora compatible con MySQL, esto
 
 **Paso 1:** Se debe acceder a la instancia EC2 por ssh con el siguiente comando.
 ```javascript
-chmod 600 <path/to/pem/file>
-ssh -i <path/to/pem/file> ec2-user@<publicIpAddress>
+$ chmod 600 <path/to/pem/file>
+$ ssh -i <path/to/pem/file> ec2-user@<publicIpAddress>
 ```
-
+**Paso 2:** Se debe acceder a la base de datos para crear los usuarios y por esto se debe instalar mysql así.
+```javascript
+$ sudo yum install -y mysql
+```
 ### Creación de instancia en GCP con WordPress
 - 1. Dentro de la consola de GCP se navega a **Marketplace**
 - 2. Se va a utilizar una máquina virtual de **WordPress**, especificamentet la que dice **Google Click to Deploy**, se le da click y en la siguiente ventana se la de la opción de **desplegar o "launch"**. 
