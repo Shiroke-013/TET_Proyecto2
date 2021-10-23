@@ -45,22 +45,29 @@ En este caso se usara una una base de datos de Aurora compatible con MySQL, esto
 
 **Paso 1:** Se debe acceder a la instancia EC2 por ssh con el siguiente comando.
 ```javascript
-$ chmod 600 <path/to/pem/file>
-$ ssh -i <path/to/pem/file> ec2-user@<publicIpAddress>
+chmod 600 <path/to/pem/file>
+ssh -i <path/to/pem/file> ec2-user@<publicIpAddress>
 ```
 **Paso 2:** Se debe acceder a la base de datos para crear los usuarios y por esto se debe instalar mysql así.
 ```javascript
-$ sudo yum install -y mysql
+sudo yum install -y mysql
 ```
-### Creación de instancia en GCP con WordPress
-- 1. Dentro de la consola de GCP se navega a **Marketplace**
-- 2. Se va a utilizar una máquina virtual de **WordPress**, especificamentet la que dice **Google Click to Deploy**, se le da click y en la siguiente ventana se la de la opción de **desplegar o "launch"**. 
-- 3. Se tiene que escoger la zona en la que se desplegara y **recordarla** para pasos posteriores.
-- 4. En el proceso de despliegue se tiene que dar una dirección de correo (no tiene que ser real, solo será el usuario de ingreso a wordpress).
-- 5. Hay que asegurarse de que se permite tráfico **HTTP y HTTPS** desde Internet. 
-- 6. Después de configurar esto solo se tiene que dar click en **deploy**, mientras se crea la instancia se podrá apreciar la información del Wordpress que se genera.
+luego los siguentes comandos para accede:
+```javascript
+export MYSQL_HOST=<your-endpoint>
+mysql --user=<user> --password=<password> wordpress
+```
+**Paso 3:** Agregar el usuario de la base de datos.
+```javascrip
+CREATE USER 'wordpress' IDENTIFIED BY 'wordpress-pass';
+GRANT ALL PRIVILEGES ON wordpress.* TO wordpress;
+FLUSH PRIVILEGES;
+Exit
+```
 
-Despues de esto si se va a **Compute Engine** y a **VM Instances** se podrá ver la instancia corriendo y la IP pública de esta. Se puede copiar y pegar en el browser para ver que esta corriendo sin ningún problema.
+
+
+
 
 ### Obtención de Certificado SSL
 #### Creación de un "Instance Group"
