@@ -1,6 +1,16 @@
 # TET_Proyecto2
 
-## Producto 1: Aplicación monolítica NO-ESCALABLE individual y grupal desplegada en GCP, con nombre de dominio y certificado SSL válido.
+## Producto Final: Aplicación escalable con recursos de aws e implementación a mano.
+
+##Prerrequisitos:
+- Cuenta de AWS con créditos.
+- Dos o mas instancias de AWS con Wordpress instalado y configurado.
+**NOTA:** Puede seguir el siguente tutorial proporcionado por AWS para la instalación de Worpress (https://aws.amazon.com/es/getting-started/hands-on/deploy-wordpress-with-amazon-rds/)
+
+### Introducción
+En esta entrega final se presentara el despliegue de una aplicación web de wordpress completamente escalable, se usarán servicio proporcionados por Aamazon Web Services (AWS) como lo son Amazon Relational Databases Service (RDS) y Amazon Elastic File System (EFS). Por otro lado se instalará a en dos instancias EC2 HAProxy como balanceador de cargas para las CMS de wordpress, además se usara keepalived para configurara una IP flotante que mejorará la disponiblidad de los CMS. Para la mejorar en rendimiento se usara CloudFlare como un Content Delivery Network (CDN).
+
+### Configuración del RDS
 
 ### Creación de instancia en GCP con WordPress
 - 1. Dentro de la consola de GCP se navega a **Marketplace**
