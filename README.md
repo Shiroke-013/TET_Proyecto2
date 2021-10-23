@@ -2,7 +2,7 @@
 
 ## Producto Final: Aplicación escalable con recursos de aws e implementación a mano.
 
-##Prerrequisitos:
+## Prerrequisitos:
 - Cuenta de AWS con créditos.
 - Dos o mas instancias de AWS con Wordpress instalado y configurado.
 **NOTA:** Puede seguir el siguente tutorial proporcionado por AWS para la instalación de Worpress (https://aws.amazon.com/es/getting-started/hands-on/deploy-wordpress-with-amazon-rds/)
