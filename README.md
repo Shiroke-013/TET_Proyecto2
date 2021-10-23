@@ -5,6 +5,7 @@
 ## Prerrequisitos:
 - Cuenta de AWS con créditos.
 - Dos o mas instancias de AWS con Wordpress instalado y configurado.
+
 **NOTA:** Puede seguir el siguente tutorial proporcionado por AWS para la instalación de Worpress (https://aws.amazon.com/es/getting-started/hands-on/deploy-wordpress-with-amazon-rds/)
 
 ### Introducción
@@ -65,9 +66,36 @@ FLUSH PRIVILEGES;
 Exit
 ```
 
+### Configuración de EFS en las CMS
 
+**Paso 1:** Se debe acceder a las sección de EFS en la consola de AWS y seleccionar en el menú al lado izquierdo *"File systems"*, después de esto se selecciona *"Create file system"*
 
+**Paso 2:** Se le puede dar un nombre al *"File System"*, esto es opcional, en la configuración de la *"VPC"* se debe de dejar la que está por defecto y en la parte de *"Availability and Durability"* se pone *"Regional"*, finalmente se selecciona *"Create"*.
+![EFS1](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/EFS1.png)
 
+**Paso 3:** Se selecciona el *"File system ID"* del "File system" creado o se puede seleccionar y dar click en *"View details"*.
+
+**Paso 4:** En el nuevo menú se selecciona "Attach", esto abrirá un menú, junto con un comando para ejecutar en las instancias, mantenga esto abierto ya que será de utilidad más adelante.
+![EFS2](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/EFS2.png)
+![EFS2](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/EFS2.png)
+
+**Paso 5:** Ingresar a las instancias a las que se les va a montar el "File system" y ejecutar los siguientes comandos:
+```javascript
+sudo yum -y update  
+sudo reboot  
+sudo yum -y install nfs-utils
+```
+
+**Paso 6:** En las instancias que se quieren montar el *"File system"* se debe de crear una carpeta en el *"home"*, esta puede tener cualquier nombre, pero preferiblemente se pide que sea: *"efs"* ya que este está por defecto en el comando que aparece en el menú del paso anterior.
+
+**Paso 7:** Ejecute el comando que aparece en el paso 4, puede ser tanto via "DNS" o "IP", luce así:
+```javascript
+ sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport <mount-target-DNS>:/   efs-mount-point
+```
+
+```javascript
+sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport <mount-target-ip>:/  ~/efs-mount-point
+```
 
 ### Obtención de Certificado SSL
 #### Creación de un "Instance Group"
