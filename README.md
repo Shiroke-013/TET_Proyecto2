@@ -11,6 +11,33 @@
 En esta entrega final se presentara el despliegue de una aplicación web de wordpress completamente escalable, se usarán servicio proporcionados por Aamazon Web Services (AWS) como lo son Amazon Relational Databases Service (RDS) y Amazon Elastic File System (EFS). Por otro lado se instalará a en dos instancias EC2 HAProxy como balanceador de cargas para las CMS de wordpress, además se usara keepalived para configurara una IP flotante que mejorará la disponiblidad de los CMS. Para la mejorar en rendimiento se usara CloudFlare como un Content Delivery Network (CDN).
 
 ### Configuración del RDS
+En este caso se usara una una base de datos de Aurora compatible con MySQL, esto debido a que este tipo de base de datos genera a la vez una copia de la base de datos master que es de escritura y lecutra en otra zona de AWS. Si se llega a caer la base de datos de escritura la copia asiende a ser la base de datos master. La configuración del RDS es la siguiente:
+
+**Paso 1:** Se debe acceder a la sección de RDS en la consola de AWS y seleccionar *"Create database"*
+
+**Paso 2:** Se debe seleccionar *"standar create"* y posterior a esto el tipo de base de datos que se usara que es *"Amazon Aurora"*, así como se ve en la imagen.
+![db1](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/CreateDB1.jpeg)
+
+**Paso 3:** Se debe asegurar que la edición de aurora sea compatible con MySQL, en *Capacity type* debe ser *Provisioned* y se debe verificar que en *replicaction features* si este seleccionada la opción de *sigle-master*.
+![db2](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/CreateDB2.jpeg)
+
+**Paso 4:** Seleccionar en "Templates" que la base de datos sera usaba para prducción y en la sección de *DB cluster idefier* el nombre que se le dará al cluster este puede ser cualquier nombre.
+![db3](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/CreateDB3.jpeg)
+
+**Paso 5:** Se debe asignar un usuario master en este caso se llama "admin" y se le debe asignar una contraseña que se debe recordar para acceder a la base de datos luego.
+![db4](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/CreateDB4.jpeg)
+
+**Paso 6:** Para que la base de datos tenga lata disponibilidad se debe seleccionar la opción de *"Create an Aurora Replica or Reader node in a different AZ (recommended for scaled availability)"* esto creara una replica de lectura de la base de datos master en otra zona de AWS así si se llega a caer la zona donde esta la base de datos principal siempre estara la otra de respaldo.
+![db5](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/CreateDB5.jpeg)
+
+**Paso 7:** En conectividad se debe dejar las opciones de default en *Virtual Private Cloud (VPC)* y en *subnet group*. Por otro lado se le debe permitir acceso público para que los CMS puedan acceder a esta, por esto se cambia la opción de *public acces* a *Yes*.
+![db6](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/CreateDB6.jpeg)
+
+**Paso 8:** En la configuración de el grupo de seguridad se debe asegurar que sea el mismo de las CMS.
+![db7](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/CreateDB7.jpeg)
+
+**Paso 9:** Se debe abrir la configuración adicional y en esta agregar la base de datos inicial en este caso lleva el nombre de "wordpress".
+![db8](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/CreateDB8.jpeg)
 
 ### Creación de instancia en GCP con WordPress
 - 1. Dentro de la consola de GCP se navega a **Marketplace**
