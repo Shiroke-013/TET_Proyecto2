@@ -39,9 +39,19 @@ En este caso se usara una una base de datos de Aurora compatible con MySQL, esto
 **Paso 9:** Se debe abrir la configuración adicional y en esta agregar la base de datos inicial en este caso lleva el nombre de "wordpress".
 ![db8](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/CreateDB8.jpeg)
 
+**Paso 10:** Seleccionar el boton de "Create database" y esperar a que esta suba por completo.
+
+### Configuración el RDS en Wordpress
+
+**Paso 1:** Se debe acceder a la instancia EC2 por ssh con el siguiente comando.
+```javascript
+chmod 600 <path/to/pem/file>
+ssh -i <path/to/pem/file> ec2-user@<publicIpAddress>
+```
+
 ### Creación de instancia en GCP con WordPress
 - 1. Dentro de la consola de GCP se navega a **Marketplace**
-- 2. Se va a utilizar una máquina virtual de **WordPress**, especificamentet la que dice **Google Click to Deploy**, se le da click y en la siguiente ventana se la de la opción de **desplegar o "launch"**.
+- 2. Se va a utilizar una máquina virtual de **WordPress**, especificamentet la que dice **Google Click to Deploy**, se le da click y en la siguiente ventana se la de la opción de **desplegar o "launch"**. 
 - 3. Se tiene que escoger la zona en la que se desplegara y **recordarla** para pasos posteriores.
 - 4. En el proceso de despliegue se tiene que dar una dirección de correo (no tiene que ser real, solo será el usuario de ingreso a wordpress).
 - 5. Hay que asegurarse de que se permite tráfico **HTTP y HTTPS** desde Internet. 
