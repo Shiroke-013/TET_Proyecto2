@@ -11,6 +11,14 @@
 ### Introducción
 En esta entrega final se presentara el despliegue de una aplicación web de wordpress completamente escalable, se usarán servicio proporcionados por Aamazon Web Services (AWS) como lo son Amazon Relational Databases Service (RDS) y Amazon Elastic File System (EFS). Por otro lado se instalará a en dos instancias EC2 HAProxy como balanceador de cargas para las CMS de wordpress, además se usara keepalived para configurara una IP flotante que mejorará la disponiblidad de los CMS. Para la mejorar en rendimiento se usara CloudFlare como un Content Delivery Network (CDN).
 
+### Arquitectura escalable
+Se planteo la siguiente arquiectura escalable para el despliegue de la aplicación web en Worpress:
+![ARQ](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/ARQ.jpg)
+
+### Grupo de seguridad
+Al crear las instancias EC2 para los CMS de Wordpress se debe tener encuenta que el grupo de seguridad debe tener las siguentes reglas de entrada:
+![SG](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/SecurityGroups.jpeg)
+
 ### Configuración del RDS
 En este caso se usara una una base de datos de Aurora compatible con MySQL, esto debido a que este tipo de base de datos genera a la vez una copia de la base de datos master que es de escritura y lecutra en otra zona de AWS. Si se llega a caer la base de datos de escritura la copia asiende a ser la base de datos master. La configuración del RDS es la siguiente:
 
@@ -96,6 +104,9 @@ sudo yum -y install nfs-utils
 ```javascript
 sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport <mount-target-ip>:/  ~/efs-mount-point
 ```
+
+### Configuración de HAProxy
+
 
 ### Obtención de Certificado SSL
 #### Creación de un "Instance Group"
