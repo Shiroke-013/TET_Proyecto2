@@ -257,3 +257,12 @@ sudo systemctl status *"servicio"*
 ```javascript
 sudo systemctl stop *"servicio"*
 ```
+
+### Configuración CDN
+
+
+### Referencias
+- https://aws.amazon.com/es/getting-started/hands-on/deploy-wordpress-with-amazon-rds/
+- https://docs.aws.amazon.com/efs/latest/ug/wt1-test.html
+- https://www.peternijssen.nl/high-availability-haproxy-keepalived-aws/
+- Para animos en el desarrollo: https://open.spotify.com/playlist/5fFFMGxmLZL48jlJd26WlA?si=0275f7890c154b4e
