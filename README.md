@@ -251,11 +251,11 @@ sudo systemctl start keepalived
 ****"NOTA: Para ver el estatus y parar los servicios puede utilizar los siguientes comandos:"****
 
 ```javascript
-sudo systemctl status *"servicio"*
+sudo systemctl status "servicio"
 ```
 
 ```javascript
-sudo systemctl stop *"servicio"*
+sudo systemctl stop "servicio"
 ```
 
 ### Configuración CDN
