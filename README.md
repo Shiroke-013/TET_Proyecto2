@@ -18,6 +18,7 @@ Se planteo la siguiente arquiectura escalable para el despliegue de la aplicaci�
 ### Grupo de seguridad
 Al crear las instancias EC2 para los CMS de Wordpress se debe tener encuenta que el grupo de seguridad debe tener las siguentes reglas de entrada:
 ![SG](https://github.com/Shiroke-013/TET_Proyecto2/blob/main/Images/SecurityGroups.jpeg)
+**NOTA:** A cada una de las instancias CMS se les debe asociar una IP elastica.
 
 ### Configuración del RDS
 En este caso se usara una una base de datos de Aurora compatible con MySQL, esto debido a que este tipo de base de datos genera a la vez una copia de la base de datos master que es de escritura y lecutra en otra zona de AWS. Si se llega a caer la base de datos de escritura la copia asiende a ser la base de datos master. La configuración del RDS es la siguiente:
@@ -106,7 +107,34 @@ sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retr
 ```
 
 ### Configuración de HAProxy
+Para la configuración del balanceador de cargas se debe crear primero dos instancias EC2 con el mismo grupo de seguridad de las CMS, asociarles IPs elasticas a cada una y acceder a ellas por medio de ssh con el siguiente comando:
+```javascript
+chmod 600 <path/to/pem/file>
+ssh -i <path/to/pem/file> ec2-user@<publicIpAddress>
+```
+Ahora se debe instalar HAProxy con el siguiente comando:
+```javascript
+sudo yum install -y haproxy
+```
+Despues de instalar se creara un archivo de configuración en la carpeta `/etc/haproxy/`accedemos a este con tu editor favorito así:
+```javascript
+sudo emacs haproxy.conf
+```
+En este archivo se deben editar las siguientes lineas para que queden así:
+```javascript
+frontend http_front 
+    bind *:80 
+    default_backend app
+```
+```javascript
+backend  app
+    balance roundrobin 
+server cms1 <dirección IP privada de cms1>:80 check
+server cms2 <dirección IP privada de cms2>:80 check
+```
+Se pueden agregar la cantidad de CMS que se desee.
 
+### Configuración IP flotante
 
 ### Obtención de Certificado SSL
 #### Creación de un "Instance Group"
