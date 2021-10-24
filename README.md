@@ -107,11 +107,13 @@ sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retr
 ```
 
 ### Configuración de HAProxy
-Para la configuración del balanceador de cargas se debe crear primero dos instancias EC2 con el mismo grupo de seguridad de las CMS, asociarles IPs elasticas a cada una y acceder a ellas por medio de ssh con el siguiente comando:
+Para la configuración del balanceador de cargas se debe crear primero dos instancias EC2 (una será el *"Master"* y la otra será *"BACKUP"*) con el mismo grupo de seguridad de las CMS, asociarles IPs elasticas a cada una y acceder a ellas por medio de ssh con el siguiente comando:
 ```javascript
 chmod 600 <path/to/pem/file>
 ssh -i <path/to/pem/file> ec2-user@<publicIpAddress>
 ```
+****"NOTA: Se debe de tener en cuenta que los siguientes pasos se deben hacer en las dos instancias"****
+
 Ahora se debe instalar HAProxy con el siguiente comando:
 ```javascript
 sudo yum install -y haproxy
@@ -122,73 +124,136 @@ sudo emacs haproxy.conf
 ```
 En este archivo se deben editar las siguientes lineas para que queden así:
 ```javascript
-frontend http_front 
-    bind *:80 
+frontend http_front
+    mode http
+    bind *:80
     default_backend app
 ```
 ```javascript
 backend  app
+    mode http
     balance roundrobin 
 server cms1 <dirección IP privada de cms1>:80 check
 server cms2 <dirección IP privada de cms2>:80 check
 ```
-Se pueden agregar la cantidad de CMS que se desee.
+Se pueden agregar la cantidad de CMS que se desee y por ultimo se inicia el servicio:
+```javascript
+sudo systemctl enable haproxy
+```
+```javascript
+sudo systemctl start haproxy
+```
 
 ### Configuración IP flotante
+Despues de haber configurado el *"HAProxy"* en cada una de las instancias se instalará *"Keepalived"*:
+```javascript
+sudo yum install -y keepalived
+```
 
-### Obtención de Certificado SSL
-#### Creación de un "Instance Group"
-- 1. Dentro de **Compute Engine** se dirige a la sección de **Instance Group**.
-- 2. Se selecciona **Create Instance Group** y se selecciona: **New unmanaged instance group**.
-- 3. Se pone el nombre de preferencia al grupo.
-- 4. Ya que se tomó en cuenta la zona en la que se creo la instancia nos aseguramos que pongamos este grupo en la misma zona para poder agregar la instancia de WordPress.
-- 5. Se agrega la máquina virtual donde se está corriendo el WordPress.
-- 6. Se le da crear y queda lista.
+Despues de instalar se creara un archivo de configuración en la carpeta `/etc/keepalived/`. En este punto se tiene que decir cual de las dos instancias será el *"Master"* y cual será el *"Backup"* ya que aunque muy parecida, su configuración es diferente, accedemos al archivo de configuración con el editor de preferencia así:
 
-### Obtención de Dominio
-Para la realización de este paso se utilizó la plataforma Freenom la cuál nos permite conseguir un dominio de una manera bastante simple, para lograrlo se siguen los siguientes pasos:
- - 1. Se debe de ingresar a la página https://www.freenom.com/ e iniciar sesión (se puede utilizar una Google para ingresar).
- - 2. Después de haberse registrada, en la barra superior se sigue lo siguiente: **Services -> Registrarse**
- - 3. Se busca en la barra que dice: **Encontrar nuevo dominio gratis**, el dominio que se quiere, para este producto fue: **"adchaves"** y aparecen varias opciones como lo serían: "adchavesp.tk", "adchavesp.ml", "adchavesp.ga",...
- - 4. Se le da en **consigalo ahora -> finalizar compra**.
- - 5. Apareceran los dominios que se quisieron conseguir, no se modifica nada y se le da en **continuar**
- - 6. Se aceptan los **términos y condiciones** y se finaliza con el botón **completar pedido**
- - Despues de esto el dominio debería de aparecer en **Services -> Mis Dominios**
+```javascript
+sudo emacs keepalived.conf
+```
 
-### Creación de un LoadBalancer
+El archivo del *"Master"* Dee de lucir así:
 
-**NOTA: DURANTE LA CREACIÓN DE ESTEE GENERAREMOS UN CERTIFICADO SSL QUE PUEDE DEMORAR 30MIN EN ACTIVARSE**
+```javascript
+vrrp_script check_haproxy
+{
+    script "pidof haproxy"
+    interval 5
+    fall 2
+    rise 2
+}
 
-- 1. Se navega en el menú izquierdo a **Network Services** -> **Load balancing** -> **Create Load Balancer**
-- 2. Queremos que sea un **HTTP(S) Load Balancing** -> **Start Configuration**
-- 3. Seleccionamos **From Internet to my VMs**
-- 4. Hay varios Componentes que hay que configurar.
-- 5. Se le asigna un nombre de preferencia al load balancer.
-- 6. Empezamos configurando nuestro **BackEnd** (A donde nuestro tráfico Proxy irá) -> **Create Backend Services**.
-- 7. Le asignamos un nombre a nuestro Backend.
-- 8. Dejamos que el protocolo sea **HTTP** y seleccionamos en el **Instance group** el grupo que anteriormente creamos, agregamos en los puertos el puerto 80.
-- 9. Además de esto tenemos que crear un **Health Check** el cual es una ruta en el backend que devolverá un **status** o un **body** que indica que el "backend" responde al tráfico y le permite al "load balancer" si este esta caido o activo.
-- 10. Se le asigna un nombre y en la parte de **Protocol** le ponemos HTTP en el puerto 80 y le damos crear.
-- 11. Ahora lo que tenemos que configurar es nuestro **FrontEnd**, le asignamos un nombre.
-- 12. En la parte de **Protocol** seleccionamos **HTTPS(includes HTTPS/2)** y necesitamos reservar una IP estática, por lo cual en **ip address** creamos una nueva(solo la tenemos que nombrar).
-- 13. El puerte debe apuntar al 443 y ahora en la parte de **Certificate** creamos un nuevo certificado(tenemos que nombrarlo) y en la configuración de este seleccionamos en **create mode** la opción que dice **"Create Google-managed certificate"**, esto hace que google se encarge del certificado, y se necesita especificar los dominios que se tienen en la sección de **Domains** el cuál fue previamente creado y creamos el certificado.
-- 14. Después de esto todo debe de estar bien así que terminamos con el "FrontEnd" y solo nos falta darle en **Create** al load balancer.
+vrrp_instance VI_1
+{
+    debug 2
+    interface eth0
+    state MASTER
+    virtual_router_id 1
+    priority 110
+    unicast_src_ip <PRIVATE IP FROM MASTER INSTANCE>
 
-### Creación de una DNS
-- 1. Nos movemos a **Cloud DNS** -> **Create Zone**.
-- 2. En la configuración la nombramos y ponemos el dominio que hemos creado, después solo se le da crear.
-- 3. Esto crea varios registros y uno de ellos son nuestros **NAMESERVERS** y esto es lo que se va a usar para que nuestro dominio envie el tráfico a GCP.
-- 4. Siendo así volveremos a Freenom -> Services -> My Domains, en el dominio con el que estamoso trabajando seleccionaremos **Manage Domain** -> **Management Tools** -> **Nameserver** y le daremos a la opción de **use custom nameserver**, los llenaremos con los 4 registros que creamos anteriormente.
-- 5. Después de configurar lo anterior volvemos a la consola de GCP y le damos a **ADD RECORD SET** dentro de nuestra DNS.
-- 6. Se puede crear un registro con cosas como: www, www1, www2, etc..., haremos que este sea de tipo **A** y el **TTL** lo pondremos en 1min.
-- 7. En la parte de IP Address necesitamos poner la dirección de nuestro "Load Balancer" para ponerla allí(Solo se necesita la dirección IPv4, osea antes de: ":") y le daremos a crear.
+    unicast_peer
+    {
+        <PRIVATE IP FROM BACKUP INSTANCE>
+    }
 
-### Configuración de WordPress
-- 1. Ahora necesitamos configurar unas cuentas cosas de nuestra página de WordPress, vamos a acceder a la parte de administrador (wp-admin) con las credenciales que nos dieron al crear la instancia.
-- 2. En la sección de **Plugins** -> **Add New**, buscaremos el siguiente puglin: SSL Insecure Content Fixer, lo instalaremos y lo activaremos.
-- 3. Ahora en la sección de **Settings** tendremos una nueva opción **SSL Insecure Content**, dentro de ella iremos hasta abajo hasta la sección **HTTPS detection** seleccionaremos la opción que tenga load balancer en estet caso: HTTP_X_FORWARDED_PROTO(e.g. load balancer, reverse proxy, NginX) y guardaremos los cambios.
-- 4. Ahora y ya para terminar iremos a **Settting** -> **General** y actualizaremos tanto el **WordPress Address (URL)** como **Site Address (URL)** en la parte que está la ip, la reemplazaremos por nuestro dominio para que quede algo como: http://adchavesp.tk, seguiremos dejando el http y guardaremos cambios.
+    track_script
+    {
+        check_haproxy
+    }
 
+    notify_master /etc/keepalived/failover.sh
+}
+```
 
-# Para la próxima entrega
-Se tiene en cuenta que para el siguiente producto se debe de crear la instancia de una manera diferente para poder conseguir lo que se va a pedir. También se tuvo en cuenta que durante la clase que se habló de este readme se mencionó que entregara el readme de esta manera de desarrollar este producto.
+Y el archivo del *"Backup"* así:
+
+```javascript
+vrrp_script check_haproxy
+{
+    script "pidof haproxy"
+    interval 5
+    fall 2
+    rise 2
+}
+
+vrrp_instance VI_1
+{
+    debug 2
+    interface eth0
+    state BACKUP
+    virtual_router_id 1
+    priority 100
+    unicast_src_ip <PRIVATE IP FROM BACKUP INSTANCE>
+
+    unicast_peer
+    {
+        <PRIVATE IP FROM MASTER INSTANCE>
+    }
+
+    track_script
+    {
+        check_haproxy
+    }
+
+    notify_master /etc/keepalived/failover.sh
+}
+```
+
+Despues en la misma carpeta (`/etc/keepalived/`) tanto en el *"Master"* como en el *"Backup"* creamos un archivo llamado *"failover.sh"* y debería de lucir así:
+```javascript
+#!/bin/bash
+
+EIP=<ELASTIC IP ADDRESS ASSOCIATED TO THE MASTER INSTANCE>
+INSTANCE_ID=<INSTANCE ID> # Example: i-0bdd8a68eb573fd1a
+
+/usr/bin/aws ec2 disassociate-address --public-ip $EIP
+/usr/bin/aws ec2 associate-address --public-ip $EIP --instance-id $INSTANCE_ID
+```
+
+Nos aseguramos de que este archivo sea ejecutable con el siguiente comando:
+```javascript
+sudo chmod 700 failover.sh
+```
+
+Por último configuramos e iniciamos el servicio de *"Keepalived"*:
+```javascript
+sudo systemctl enable keepalived
+```
+```javascript
+sudo systemctl start keepalived
+```
+
+****"NOTA: Para ver el estatus y parar los servicios puede utilizar los siguientes comandos:"****
+
+```javascript
+sudo systemctl status *"servicio"*
+```
+
+```javascript
+sudo systemctl stop *"servicio"*
+```
