@@ -259,6 +259,7 @@ sudo systemctl stop "servicio"
 ```
 
 ### Configuración CDN
+Como servicio para la mejora del rendimiento de nuestra pagina se usara un Content Delivery Network (CDN) llamado CloudFlare, para la configuración de este solo es necesario abrir una cuenta y tener un dominio, que en nuestro caso obtuvimos de freenom. Luego de tener esto solo es necesario seguir los pasos de configuración y asegurarse que el dominio este dirigido a la IP elastica del HAProxy master. Por ultimo solo queda esperar que el servicio se active, esto puede tomar varias horas.
 
 
 ### Referencias
