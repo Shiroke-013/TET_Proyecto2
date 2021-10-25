@@ -1,8 +1,9 @@
 # TET_Proyecto2
 
 ## Producto Final: Aplicación escalable con recursos de aws e implementación a mano.
+## Autores: Andres Dario Chaves y Catalina López Roldan.
 
-## Prerrequisitos:
+### Prerrequisitos:
 - Cuenta de AWS con créditos.
 - Dos o mas instancias de AWS con Wordpress instalado y configurado.
 
