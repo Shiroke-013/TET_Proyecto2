@@ -1,7 +1,7 @@
 # TET_Proyecto2
 
 ## Producto Final: Aplicación escalable con recursos de aws e implementación a mano.
-## Autores: Andres Dario Chaves y Catalina López Roldan.
+## Autores: Andres Dario Chaves Perez y Catalina López Roldán.
 
 ### Prerrequisitos:
 - Cuenta de AWS con créditos.
