@@ -82,6 +82,16 @@ define( 'DB_PASSWORD', 'password_here' );
 /** MySQL hostname */
 define( 'DB_HOST', 'localhost' );
 ```
+Los valores deben ser:
+
+● DB_NAME: “wordpress”
+
+● DB_USER: el nombre del usuario que creó en la base de datos.
+
+● DB_PASSWORD: la contraseña del usuario que creó.
+
+● DB_HOST: el endpoint de la base de datos RDS de escritura.
+
 Ademas debe recordar que es la primera vez que esta usando Wordpress en la instancia debe agregar las keys que se encuentran en este [link](https://api.wordpress.org/secret-key/1.1/salt/). En el mismo archivo de configuración así:
 ```javascript
 /**#@+
