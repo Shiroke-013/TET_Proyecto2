@@ -59,7 +59,51 @@ En este caso se usara una una base de datos de Aurora compatible con MySQL, esto
 chmod 600 <path/to/pem/file>
 ssh -i <path/to/pem/file> ec2-user@<publicIpAddress>
 ```
-**Paso 2:** Se debe acceder a la base de datos para crear los usuarios y por esto se debe instalar mysql así.
+**Paso 2:** En el archivo de configuración de wordpress se deben modificar las siguientes lineas, se accede de la siguiente forma:
+```javascript
+cd /var/www/html
+cp wp-config-sample.php wp-config.php
+```
+```javascript
+sudo emacs wp-config.php
+```
+Configuración de la base de datos RDS
+```javascript
+// ** MySQL settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
+define( 'DB_NAME', 'database_name_here' );
+
+/** MySQL database username */
+define( 'DB_USER', 'username_here' );
+
+/** MySQL database password */
+define( 'DB_PASSWORD', 'password_here' );
+
+/** MySQL hostname */
+define( 'DB_HOST', 'localhost' );
+```
+Ademas debe recordar que es la primera vez que esta usando Wordpress en la instancia debe agregar las keys que se encuentran en este [link](https://api.wordpress.org/secret-key/1.1/salt/). En el mismo archivo de configuración así:
+```javascript
+/**#@+
+ * Authentication Unique Keys and Salts.
+ *
+ * Change these to different unique phrases!
+ * You can generate these using the {@link https://api.wordpress.org/secret-key/1.1/salt/ WordPress.org secret-key service}
+ * You can change these at any point in time to invalidate all existing cookies. This will force all users to have to log in again.
+ *
+ * @since 2.6.0
+ */
+define( 'AUTH_KEY',         'put your unique phrase here' );
+define( 'SECURE_AUTH_KEY',  'put your unique phrase here' );
+define( 'LOGGED_IN_KEY',    'put your unique phrase here' );
+define( 'NONCE_KEY',        'put your unique phrase here' );
+define( 'AUTH_SALT',        'put your unique phrase here' );
+define( 'SECURE_AUTH_SALT', 'put your unique phrase here' );
+define( 'LOGGED_IN_SALT',   'put your unique phrase here' );
+define( 'NONCE_SALT',       'put your unique phrase here' );
+```
+
+**Paso 3:** Se debe acceder a la base de datos para crear los usuarios y por esto se debe instalar mysql así.
 ```javascript
 sudo yum install -y mysql
 ```
@@ -68,7 +112,7 @@ luego los siguentes comandos para accede:
 export MYSQL_HOST=<your-endpoint>
 mysql --user=<user> --password=<password> wordpress
 ```
-**Paso 3:** Agregar el usuario de la base de datos.
+**Paso 4:** Agregar el usuario de la base de datos.
 ```javascrip
 CREATE USER 'wordpress' IDENTIFIED BY 'wordpress-pass';
 GRANT ALL PRIVILEGES ON wordpress.* TO wordpress;
@@ -267,4 +311,5 @@ Como servicio para la mejora del rendimiento de nuestra pagina se usara un Conte
 - https://aws.amazon.com/es/getting-started/hands-on/deploy-wordpress-with-amazon-rds/
 - https://docs.aws.amazon.com/efs/latest/ug/wt1-test.html
 - https://www.peternijssen.nl/high-availability-haproxy-keepalived-aws/
+- https://docs.google.com/document/d/1N3YXcIyoUK2CN2tRClz5qMA4YebHMPeuM3-tYptQ8XI/edit?usp=sharing (Versión Telematica)
 - Para animos en el desarrollo: https://open.spotify.com/playlist/5fFFMGxmLZL48jlJd26WlA?si=0275f7890c154b4e
